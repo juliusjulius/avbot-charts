@@ -84,7 +84,16 @@ module.exports = async (features, icao) => {
       if (!lnk) {
         throw new Error('Not Found');
       }
-      return `${fmtr(features.chart.baseUrl, fmtrOptions)}${lnk.replaceAll(' ', '%20')}`;
+      
+      //check if 404
+      const url = `${fmtr(features.chart.baseUrl, fmtrOptions)}${lnk.replaceAll(' ', '%20')}`;
+        const respon = await api.get(url).catch(function (error) {
+          if (error.response) {
+            throw new Error('Not found - 404');
+          }
+        })
+      return url;
+      
     } else if (features.search) {
       const searchResponse = $(fmtr(features.search.selector)).text();
       const searchResults = searchResponse.match(new RegExp(fmtr(features.search.regex, fmtrOptions), 'g'));
